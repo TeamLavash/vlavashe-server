@@ -55,12 +55,22 @@ def set_last_id(new_id):
 	file.close()
 
 
+def get_info(shawa_id):
+	if os.path.isfile('{}/{}.json'.format(SHAWARMA_DIR, shawa_id)):
+		info_file = open('{}/{}.json'.format(SHAWARMA_DIR, shawa_id))
+		info = json.loads(info_file.read())
+		info_file.close()
+		return info
+	else:
+		return {}
+
+
 def add_shawarma(json_obj):
 	shawa_id = get_last_id() + 1
 	set_last_id(shawa_id)
 	new_shawa = { 'id': shawa_id, 'name': json_obj['name'], 'road': json_obj['road'], \
 		'house': json_obj['house'], 'x': json_obj['x'], 'y': json_obj['y'], \
-		'rating': 0.0, 'rateCount': 0, 'price': json_obj['price'] }
+		'rating': 0.0, 'rateCount': 0, 'rates': 0, 'price': json_obj['price'] }
 
 	info = open('{}/{}.json'.format(SHAWARMA_DIR, shawa_id), 'w')
 	info.write(json.dumps(new_shawa))
@@ -79,13 +89,15 @@ def get_comments(json_obj):
 		com_str = comments_file.read()
 		comments_file.close()
 
-		return get_message(MessageType.SHOW_COMMENTS, com_str)
+		res = { 'id': json_obj['id'], 'comments': json.loads(com_str) }
+
+		return get_message(MessageType.SHOW_COMMENTS, res)
 	else:
 		return get_result_message(MessageType.SHOW_COMMENTS, 'Шаверма не найдена.')
 
 
 def add_comment(json_obj):
-	if not os.path.isfile('{}/{}.json'.format(user.USER_DIR, json_obj['userId'])):
+	if not os.path.isfile('{}/{}.json'.format('./users', json_obj['userId'])):
 		return get_result_message(MessageType.COMMENT_ADD, 'Пользователь не найден.')
 
 	if not os.path.isfile('{}/{}.json'.format(SHAWARMA_DIR, json_obj['shawaId'])):
@@ -94,7 +106,7 @@ def add_comment(json_obj):
 	if not os.path.isfile('{}/{}.json'.format(COMMENTS_DIR, json_obj['shawaId'])):
 		return get_result_message(MessageType.COMMENT_ADD, 'Шаверма не найдена.')
 
-	user = open('{}/{}.json'.format(user.USER_DIR, json_obj['userId']), 'r')
+	user = open('{}/{}.json'.format('./users', json_obj['userId']), 'r')
 	user_obj = json.loads(user.read())
 	user.close()
 	user_name = user_obj['name']
@@ -114,8 +126,9 @@ def add_comment(json_obj):
 	info = json.loads(info_file.read())
 	info_file.close()
 
-	info['rating'] = info['rating'] + json_obj['rating'] / (info['rateCount'] + 1)
-	info['rateCount'] = info['rateCount'] + 1
+	info['rateCount'] = info['rateCount'] + json_obj['rating']
+	info['rates'] = info['rates'] + 1
+	info['rating'] = round(info['rateCount'] / info['rates'], 2)
 
 	info_file = open('{}/{}.json'.format(SHAWARMA_DIR, json_obj['shawaId']), 'w')
 	info_file.write(json.dumps(info))

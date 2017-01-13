@@ -1,6 +1,7 @@
 import json
 from enum import Enum
 import os.path
+import shawarma
 
 
 class MessageType(Enum):
@@ -167,12 +168,17 @@ def sign_in(json_obj):
 
 
 def get_favourite(json_obj):
+	print('{}/{}.json'.format(FAVOURITE_DIR, json_obj['id']))
 	if (os.path.isfile('{}/{}.json'.format(FAVOURITE_DIR, json_obj['id']))):
 		fav_file = open('{}/{}.json'.format(FAVOURITE_DIR, json_obj['id']), 'r')
-		fav_str = fav_file.read()
+		fav = json.loads(fav_file.read())
 		fav_file.close()
 
-		return get_message(MessageType.SHOW_FAVOURITE, fav_str)
+		res = []
+		for it in fav:
+			res.append(shawarma.get_info(it))
+
+		return get_message(MessageType.SHOW_FAVOURITE, res)
 	else:
 		return get_result_message(MessageType.SHOW_FAVOURITE, 'Пользователь не найден.')
 
