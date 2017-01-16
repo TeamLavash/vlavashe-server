@@ -4,17 +4,6 @@ import shawarma
 
 app = Flask(__name__)
 
-@app.route('/')
-def api_root():
-    return 'Welcome'
-
-@app.route('/articles')
-def api_articles():
-    return 'List of ' + url_for('api_articles')
-
-@app.route('/articles/<articleid>')
-def api_article(articleid):
-    return 'You are reading ' + articleid
 
 @app.route('/sign_up', methods = ['POST'])
 def api_sign_up():
@@ -76,17 +65,5 @@ def api_search():
 	return json.dumps(resp)
 
 
-@app.route('/messages', methods = ['POST'])
-def api_message():
-
-    if request.headers['Content-Type'] == 'text/plain':
-        return "Text Message: " + request.data
-
-    elif request.headers['Content-Type'] == 'application/json':
-        return "JSON Message: " + json.dumps(request.json)
-
-    else:
-        return "415 Unsupported Media Type ;)"
-
 if __name__ == '__main__':
-    app.run()
+    app.run(host='0.0.0.0')
