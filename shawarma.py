@@ -153,26 +153,35 @@ def more(json_obj):
 
 def search(json_obj):
 	tokens = json_obj['text'].split(' ')
+	ftokens = list()
+	for t in tokens:
+		if t != '':
+			ftokens.append(t)
+	tokens = ftokens
+
+	print(tokens)
 
 	if len(tokens) == 2:
 		road = tokens[0].lower()
 		house = tokens[1].lower()
 	elif len(tokens) == 1:
 		road = tokens[0].lower()
-	else:
-		return get_message(MessageType.SEARCH, '[]')
+	# else:
+	# 	return get_message(MessageType.SEARCH, '[]')
 
 	result = []
 	if len(tokens) == 2:
+		print(os.listdir(SHAWARMA_DIR))
 		for file in os.listdir(SHAWARMA_DIR):
 			if file.endswith('.json'):
-				f = open(file, 'r')
+				f = open('{}/{}'.format(SHAWARMA_DIR, file), 'r')
 				info = json.loads(f.read())
 				f.close()
 
 				if info['road'].lower().find(tokens[0]) != -1 and info['house'].lower().find(tokens[1]) != -1:
 					result.append(info)
 	elif len(tokens) == 1:
+		print(os.listdir(SHAWARMA_DIR))
 		for file in os.listdir(SHAWARMA_DIR):
 			if file.endswith('.json'):
 				f = open('{}/{}'.format(SHAWARMA_DIR, file), 'r')
@@ -182,7 +191,12 @@ def search(json_obj):
 				if info['road'].lower().find(tokens[0]) != -1:
 					result.append(info)
 	else:
-		return get_message(MessageType.SEARCH, '[]')
+		for file in os.listdir(SHAWARMA_DIR):
+			if file.endswith('.json'):
+				f = open('{}/{}'.format(SHAWARMA_DIR, file), 'r')
+				info = json.loads(f.read())
+				f.close()
+				result.append(info)
 
 	return get_message(MessageType.SEARCH, result)
 
